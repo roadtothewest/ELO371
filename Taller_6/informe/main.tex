@@ -493,16 +493,16 @@ la estación inferior, con $B$ en la superior (H12).
 
 Reemplazando las leyes de los componentes en las de conexión:
 \begin{align}
-  \frac{dU}{dt}       &= \frac{1}{C}\big[\, i_D - i_a \,\big] \label{eq:x1}\\
-  \frac{di_a}{dt}     &= \frac{1}{L_a}\big[\, U - R_a i_a - K_a\omega_m \,\big] \\
-  \frac{d\omega_m}{dt}&= \frac{1}{J_1}\big[\, K_a i_a - \beta_1\omega_m - M_{k1} \,\big] \\
-  \frac{dM_{k1}}{dt}  &= \frac{1}{K_1}\big[\, \omega_m - N\omega_2 \,\big] \\
-  \frac{d\omega_2}{dt}&= \frac{1}{J_2}\big[\, N M_{k1} - \beta_2\omega_2 - M_{k2} \,\big] \\
-  \frac{dM_{k2}}{dt}  &= \frac{1}{K_2}\big[\, \omega_2 - \omega_p \,\big] \\
-  \frac{d\omega_p}{dt}&= \frac{1}{J_{eq}}\big[\, M_{k2} - r F_c \,\big] \label{eq:x7}\\
-  \frac{dF_{kS}}{dt}  &= K_e\, s_2(x_A)\, r\,\omega_p \\
-  \frac{dF_{kI}}{dt}  &= K_e\, s_3(x_A)\, r\,\omega_p \\
-  \frac{dx_A}{dt}     &= r\,\omega_p \label{eq:x10}
+  \frac{dU}{dt}       &= \frac{1}{C}\big[\, i_D - i_a \,\big] \tag{12.1}\label{eq:x1}\\
+  \frac{di_a}{dt}     &= \frac{1}{L_a}\big[\, U - R_a i_a - K_a\omega_m \,\big] \tag{12.2}\\
+  \frac{d\omega_m}{dt}&= \frac{1}{J_1}\big[\, K_a i_a - \beta_1\omega_m - M_{k1} \,\big] \tag{12.3}\\
+  \frac{dM_{k1}}{dt}  &= \frac{1}{K_1}\big[\, \omega_m - N\omega_2 \,\big] \tag{12.4}\\
+  \frac{d\omega_2}{dt}&= \frac{1}{J_2}\big[\, N M_{k1} - \beta_2\omega_2 - M_{k2} \,\big] \tag{12.5}\\
+  \frac{dM_{k2}}{dt}  &= \frac{1}{K_2}\big[\, \omega_2 - \omega_p \,\big] \tag{12.6}\\
+  \frac{d\omega_p}{dt}&= \frac{1}{J_{eq}}\big[\, M_{k2} - r F_c \,\big] \tag{12.7}\label{eq:x7}\\
+  \frac{dF_{kS}}{dt}  &= K_e\, s_2(x_A)\, r\,\omega_p \tag{12.8}\\
+  \frac{dF_{kI}}{dt}  &= K_e\, s_3(x_A)\, r\,\omega_p \tag{12.9}\\
+  \frac{dx_A}{dt}     &= r\,\omega_p \tag{12.10}\label{eq:x10}
 \end{align}
 donde la corriente del rectificador y la fuerza resistente de la carga son
 \begin{align*}
@@ -522,11 +522,11 @@ ecuaciones son lineales afines.
 
 \subsection*{13.- Salidas en función de las variables de estado}
 \begin{align}
-  y_1 &= v_A = r\,\omega_p, \qquad y_2 = v_B = -r\,\omega_p \\
-  y_3 &= x_A, \qquad\qquad\ \ y_4 = x_B = x_S - x_A \\
-  y_5 &= U, \qquad\qquad\ \ \ y_6 = i_a \\
-  y_7 &= F_A = m_A(\dot v_A + g\sen\theta) + \gamma v_A + F_{amA} \\
-  y_8 &= F_B = m_B(g\sen\theta - \dot v_A) - \gamma v_A + F_{amB}
+  y_1 &= v_A = r\,\omega_p, \qquad y_2 = v_B = -r\,\omega_p \tag{13.1}\\
+  y_3 &= x_A, \qquad\qquad\ \ y_4 = x_B = x_S - x_A \tag{13.2}\\
+  y_5 &= U, \qquad\qquad\ \ \ y_6 = i_a \tag{13.3}\\
+  y_7 &= F_A = m_A(\dot v_A + g\sen\theta) + \gamma v_A + F_{amA} \tag{13.4}\\
+  y_8 &= F_B = m_B(g\sen\theta - \dot v_A) - \gamma v_A + F_{amB} \tag{13.5}
 \end{align}
 con $\dot v_A = r\,\dot\omega_p$ tomado de \eqref{eq:x7}. Durante el contacto, las fuerzas
 agrupadas $F_{kS}$ y $F_{kI}$ se reparten entre los dos topes en proporción a su rigidez.
