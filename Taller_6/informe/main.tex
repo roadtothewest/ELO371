@@ -2,7 +2,7 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[spanish,activeacute]{babel}
+\usepackage[spanish,es-tabla,activeacute]{babel}
 \usepackage{lmodern}
 \usepackage{geometry}
 \usepackage{graphicx}
@@ -421,8 +421,8 @@ $\dot p_{Jp} = M_{k2} - r(F_A - F_B)$.
 
 \noindent Deformación de los resortes durante el contacto, como en el Taller 3:
 \begin{align*}
-  F_{kSA} &= K_S(x_A - x_S) \ge 0, & F_{kBB} &= K_B\,x_B \le 0 \\
-  F_{kBA} &= K_B\,x_A \le 0,       & F_{kSB} &= K_S(x_B - x_S) \ge 0
+  F_{kSA} &= K_S(x_A - x_S) \ge 0, \quad F_{kBB} = K_B\,x_B \le 0 \\
+  F_{kBA} &= K_B\,x_A \le 0, \qquad\ \, F_{kSB} = K_S(x_B - x_S) \ge 0
 \end{align*}
 
 \noindent Restricciones de validez:
@@ -456,9 +456,10 @@ se aplica la \emph{agrupación de variables de estado}:
         equivalen a una rigidez $K_e = K_S + K_B$ y a un roce $\gamma_e = \gamma_S +
         \gamma_B$. Lo mismo ocurre con el tope inferior de $A$ y el superior de $B$. Se
         definen así dos fuerzas de resorte agrupadas:
-        \[
-          F_{kS} = F_{kSA} - F_{kBB} \ge 0, \qquad F_{kI} = F_{kBA} - F_{kSB} \le 0
-        \]
+        \begin{gather*}
+          F_{kS} = F_{kSA} - F_{kBB} \ge 0 \\
+          F_{kI} = F_{kBA} - F_{kSB} \le 0
+        \end{gather*}
 \end{itemize}
 Quedan nueve acumuladores independientes. Igual que en los Talleres 2 y 3, se agrega la
 posición $x_A$, que gobierna los conmutadores:
@@ -474,10 +475,10 @@ posición $x_A$, que gobierna los conmutadores:
   \item $F_{kI}$: resortes del contacto inferior de $A$ (superior de $B$).
   \item $x_A$: posición de la cabina $A$.
 \end{enumerate}
-\[
-  x(t) = \big[\, U,\ i_a,\ \omega_m,\ M_{k1},\ \omega_2,\ M_{k2},\ \omega_p,\ F_{kS},\
-  F_{kI},\ x_A \,\big]^{T}
-\]
+\begin{multline*}
+  x(t) = \big[\, U,\ i_a,\ \omega_m,\ M_{k1},\ \omega_2,\ M_{k2}, \\
+  \omega_p,\ F_{kS},\ F_{kI},\ x_A \,\big]^{T}
+\end{multline*}
 con condiciones iniciales nulas: bus descargado, ejes sin carga y cabina $A$ en reposo en
 la estación inferior, con $B$ en la superior (H12).
 
@@ -511,8 +512,8 @@ Reemplazando las leyes de los componentes en las de conexión:
 donde la corriente del rectificador y la fuerza resistente de la carga son
 \begin{align*}
   i_D &= \frac{1}{R_s}\sum_{k=a,b,c}\max\big(0,\ v_k(t) - U\big) \\
-  F_c &= F_g + 2\gamma\, r\omega_p + s_2\big[F_{kS} + \gamma_e r\omega_p\big]
-       + s_3\big[F_{kI} + \gamma_e r\omega_p\big] \\
+  F_c &= F_g + 2\gamma\, r\omega_p + s_2\big[F_{kS} + \gamma_e r\omega_p\big] \\
+      &\quad + s_3\big[F_{kI} + \gamma_e r\omega_p\big] \\
   F_g &= (m_A - m_B)\, g\sen\theta
 \end{align*}
 La fuerza $F_c$ contiene toda la diferencia con el Taller 3. El peso aparece solo a través
@@ -632,7 +633,7 @@ rectificador, y se definen las dos condiciones de carga (Tabla~\ref{tab:param}).
 \caption{Valores asignados a los elementos del sistema.}
 \label{tab:param}
 \small
-\begin{tabular}{@{}l l l p{0.50\textwidth}@{}}
+\begin{tabular}{@{}l l l p{0.45\textwidth}@{}}
 \toprule
 \textbf{Constante} & \textbf{Valor} & \textbf{Unidad} & \textbf{Justificación} \\
 \midrule
@@ -763,14 +764,37 @@ envolvente con \texttt{Simulink.SimulationInput}, sin modificar el modelo.
   \item La separación de escalas de la Tabla~\ref{tab:escalas} hace al sistema rígido. Se
         usa \texttt{ode23t}, implícito y sin amortiguamiento numérico del modo de torsión,
         con paso máximo de $0{,}1$ ms, para resolver los pulsos de corriente de los diodos,
-        que duran $\approx 1{,}8$ ms.
+        que duran $\approx 1{,}8$ ms. Cada viaje de $70$ s se simula en $18$ a $27$ s.
   \item Como verificación, \texttt{tests.m} integra también la ecuación de estado
         directamente, con su función \texttt{ecuacion\_estado\_t6} y RK4 de paso fijo de $0{,}1$ ms,
-        y compara ambas soluciones. Los valores que se reportan en los ensayos (voltajes,
-        corrientes y velocidades de crucero, posición de llegada y compresión de los topes)
-        coinciden en las dos: el diagrama implementa las ecuaciones
-        \eqref{eq:x1}--\eqref{eq:x10}.
+        y compara ambas soluciones en todo el viaje (Tabla~\ref{tab:verif}).
 \end{itemize}
+
+\begin{table}[H]
+\centering
+\caption{Diferencia máxima entre Simulink y la integración directa de la ecuación de
+estado, en todo el viaje.}
+\label{tab:verif}
+\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Ensayo & $|\Delta v|$ [m/s] & $|\Delta U|$ [V] & $|\Delta i_a|$ [A] \\
+\midrule
+1, equilibradas & $2{,}0\times10^{-2}$ & $3{,}4$ & $2{,}5$ \\
+2a, llena sube  & $2{,}7\times10^{-5}$ & $0{,}05$ & $0{,}01$ \\
+2b, llena baja  & $2{,}2\times10^{-2}$ & $3{,}5$ & $2{,}8$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent El Ensayo 2a, en que la cabina no toca los topes, muestra la concordancia real
+entre ambas soluciones: $3\times10^{-5}$ m/s en velocidad. En los ensayos 1 y 2b el máximo
+aparece en el instante del choque con el tope, cuando la velocidad cae bruscamente. Basta
+una diferencia de $\approx 1$ mm en la posición acumulada en $100$ m para adelantar o
+atrasar ese instante en algunos milisegundos y producir esa diferencia puntual. La
+integración RK4 con paso de $0{,}05$ ms confirma que fuera de $\pm0{,}5$ s del contacto las
+diferencias bajan a $10^{-5}$ m/s. Los valores reportados en los ensayos coinciden en ambas
+soluciones: el diagrama implementa las ecuaciones \eqref{eq:x1}--\eqref{eq:x10}.
 
 \subsection*{15.- Ensayos}
 
@@ -849,7 +873,7 @@ Comentarios:
         duple.
   \item \textbf{El voltaje real no es continuo puro.} El bus se carga en los peaks de las
         fases (panel b): cada diodo conduce $\approx 33^\circ$ por ciclo, con pulsos de
-        $91$ A. El rizado es de $8{,}2$ V pico a pico ($419{,}9$ a $428{,}1$ V) a $150$ Hz.
+        $91$ A. El rizado es de $8{,}3$ V pico a pico ($419{,}8$ a $428{,}1$ V) a $150$ Hz.
         Sin condensador, el motor vería la envolvente de tres pulsos, que oscila entre
         $0{,}5\,V_m$ y $V_m$.
   \item \textbf{El rizado no llega a la velocidad.} Es la separación de escalas: el rizado
@@ -891,7 +915,7 @@ gris de (b) exige corriente negativa, imposible con el rectificador de diodos.}
 \caption{Ensayo 2, cargas no equilibradas, con los mismos paneles de la
 Fig.~\ref{fig:e1}. En 2b el diseño pide corriente negativa al partir y al frenar, y el
 rectificador no puede entregarla: la cabina se adelanta en la partida y no logra frenar,
-y llega al tope a $1{,}72$ m/s.}
+y llega al tope a $1{,}73$ m/s.}
 \label{fig:e2a}
 \end{figure*}
 
@@ -901,11 +925,11 @@ y llega al tope a $1{,}72$ m/s.}
 \toprule
 Crucero a 2 m/s & \textbf{Equil.} & \textbf{2a} & \textbf{2b} \\
 \midrule
-$U$ medio [V]          & $424{,}0$ & $430{,}8$ & $417{,}2$ \\
-Rizado de $U$ [V p-p]  & $8{,}2$   & $14{,}2$  & $1{,}4$ \\
+$U$ medio [V]          & $424{,}0$ & $430{,}7$ & $417{,}2$ \\
+Rizado de $U$ [V p-p]  & $8{,}3$   & $14{,}1$  & $1{,}4$ \\
 $i_a$ medio [A]        & $16{,}7$  & $30{,}8$  & $2{,}5$ \\
 $V_s$ requerido [V rms] & $208{,}6$ & $216{,}5$ & $199{,}1$ \\
-$v_A$ medio [m/s]      & $1{,}9984$ & $1{,}9969$ & $1{,}9998$ \\
+$v_A$ medio [m/s]      & $1{,}9984$ & $1{,}9968$ & $1{,}9998$ \\
 Potencia [kW]          & $7{,}1$   & $13{,}3$  & $1{,}1$ \\
 \bottomrule
 \end{tabular}
@@ -914,7 +938,7 @@ Potencia [kW]          & $7{,}1$   & $13{,}3$  & $1{,}1$ \\
 \noindent Comentarios:
 \begin{itemize}
   \item \textbf{La velocidad constante se logra en ambos sentidos, con voltajes
-        distintos.} $U = 430{,}8$ V cuando sube la cabina llena y $417{,}2$ V cuando baja:
+        distintos.} $U = 430{,}7$ V cuando sube la cabina llena y $417{,}2$ V cuando baja:
         $\pm 7$ V respecto del caso equilibrado, la pendiente $B\,\Delta m$ de
         \eqref{eq:ley}. De nuevo la diferencia está en la corriente: $30{,}8$ A frente a
         $2{,}5$ A. El rizado crece con la corriente, porque el condensador se descarga más
@@ -935,7 +959,7 @@ Potencia [kW]          & $7{,}1$   & $13{,}3$  & $1{,}1$ \\
         $0{,}55$ m/s sobre el perfil y $1{,}6$ m en posición. Al frenar, el motor tampoco
         puede retener: la velocidad no baja de $v_\infty = \Delta m\, g\sen\theta/c =
         1{,}70$ m/s, en que la gravedad iguala al roce. La cabina llega al tope a
-        $1{,}72$ m/s y lo comprime $157$ mm. Al calarse el motor contra el tope, el
+        $1{,}73$ m/s y lo comprime $157$ mm. Al calarse el motor contra el tope, el
         condensador se descarga en la armadura con un peak de $216$ A, y en el impacto el
         cable de $B$ se destensa ($F_B<0$): el modelo sale de su dominio de validez.
   \item \textbf{Límite del accionamiento.} El rectificador de diodos opera en un solo
