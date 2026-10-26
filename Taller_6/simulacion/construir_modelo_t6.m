@@ -8,8 +8,10 @@ function construir_modelo_t6(mdl)
 %   From -> Gain -> Sum -> Gain(1/coef) -> Integrator -> Goto, igual que en
 %   el Taller 3. La fuente, el convertidor AC-AC y el rectificador van en la
 %   parte superior; el convertidor y el rectificador son bloques MATLAB
-%   Function cuyo codigo se toma de convertidor_ac_ac.m y rectificador_m3.m.
-%   Todos los parametros se leen de la estructura p (parametros_t6.m).
+%   Function cuyo codigo va escrito al final de este archivo (es el mismo de
+%   las funciones convertidor_ac_ac y rectificador_m3 de tests.m).
+%   Todos los parametros se leen de la estructura p (parametros_t6 en tests.m).
+%   Solo se ejecuta una vez: despues basta el .slx y tests.m.
 % =========================================================================
 if nargin < 1, mdl = 'ascensor_duple_t6'; end
 aqui = fileparts(mfilename('fullpath'));
@@ -40,7 +42,7 @@ add_block('simulink/Continuous/Transport Delay', [mdl '/Retardo_T4'], ...
 add_line(mdl, 'Conv_Vs_d/1', 'Retardo_T4/1', 'autorouting', 'on');
 add_block('simulink/Sources/Constant', [mdl '/Const_a'], 'Value', 'p.a', ...
     'Position', [120 240 170 260]);
-mfun_(mdl, 'Convertidor_AC_AC', fullfile(aqui, 'convertidor_ac_ac.m'), [250 160 380 260]);
+mfun_(mdl, 'Convertidor_AC_AC', codigo_convertidor(), [250 160 380 260]);
 add_line(mdl, 'Conv_Vs/1', 'Convertidor_AC_AC/1', 'autorouting', 'on');
 add_line(mdl, 'Retardo_T4/1', 'Convertidor_AC_AC/2', 'autorouting', 'on');
 add_line(mdl, 'Const_a/1', 'Convertidor_AC_AC/3', 'autorouting', 'on');
@@ -51,7 +53,7 @@ from_(mdl, 'Rect_vabc', 'vabc', [30 300 80 320]);
 from_(mdl, 'Rect_U', 'U', [30 335 80 355]);
 add_block('simulink/Sources/Constant', [mdl '/Const_Rs'], 'Value', 'p.Rs', ...
     'Position', [120 370 170 390]);
-mfun_(mdl, 'Rectificador', fullfile(aqui, 'rectificador_m3.m'), [250 295 380 395]);
+mfun_(mdl, 'Rectificador', codigo_rectificador(), [250 295 380 395]);
 add_line(mdl, 'Rect_vabc/1', 'Rectificador/1', 'autorouting', 'on');
 add_line(mdl, 'Rect_U/1', 'Rectificador/2', 'autorouting', 'on');
 add_line(mdl, 'Const_Rs/1', 'Rectificador/3', 'autorouting', 'on');
@@ -129,10 +131,12 @@ set_param(mdl, 'SolverType', 'Variable-step', 'Solver', 'ode23t', ...
 save_system(mdl, archivo);
 fprintf('Modelo %s guardado en %s\n', mdl, archivo);
 
-% Figura del diagrama para el informe
+% Figura del diagrama para el informe (carpeta del informe si existe)
+destino = fullfile(aqui, '..', 'informe', 'figuras');
+if ~exist(destino, 'dir'), destino = aqui; end
 try
     open_system(mdl);
-    print(['-s' mdl], '-dpdf', fullfile(aqui, '..', 'informe', 'figuras', 'diagrama_simulink.pdf'));
+    print(['-s' mdl], '-dpdf', fullfile(destino, 'diagrama_simulink.pdf'));
 catch err
     fprintf('No se pudo exportar el diagrama: %s\n', err.message);
 end
@@ -233,11 +237,10 @@ add_block('simulink/Signal Routing/Goto', [mdl '/goto_' tag], 'GotoTag', tag, ..
 add_line(mdl, origen, ['goto_' tag '/1'], 'autorouting', 'on');
 end
 
-function mfun_(mdl, nombre, archivo, pos)
-% Bloque MATLAB Function cuyo codigo es el del archivo .m indicado
+function mfun_(mdl, nombre, codigo, pos)
+% Bloque MATLAB Function con el codigo indicado
 blk = [mdl '/' nombre];
 add_block('simulink/User-Defined Functions/MATLAB Function', blk, 'Position', pos);
-codigo = fileread(archivo);
 try
     cfg = get_param(blk, 'MATLABFunctionConfiguration');
     cfg.FunctionScript = codigo;
@@ -245,4 +248,28 @@ catch
     ch = find(sfroot, '-isa', 'Stateflow.EMChart', 'Path', blk);
     ch.Script = codigo;
 end
+end
+
+function c = codigo_convertidor()
+% Convertidor ideal monofasico -> trifasico (H1): inversa de Clarke de
+% alfa = Vs(t) y beta = Vs(t - T/4), escalada por la razon a.
+c = strjoin({
+    'function v = convertidor_ac_ac(vs, vs_d, a)'
+    '% Convertidor ideal 1F -> 3F: vs = alfa, vs_d = Vs(t - T/4) = beta'
+    'v = a*[vs; -0.5*vs + (sqrt(3)/2)*vs_d; -0.5*vs - (sqrt(3)/2)*vs_d];'
+    'end'}, newline);
+end
+
+function c = codigo_rectificador()
+% Rectificador de 3 diodos de catodo comun, cada uno en serie con Rs (H2).
+c = strjoin({
+    'function iD = rectificador_m3(v, U, Rs)'
+    '% Corriente total de los diodos que conducen hacia el bus de tension U'
+    'iD = 0;'
+    'for k = 1:3'
+    '    if v(k) > U'
+    '        iD = iD + (v(k) - U)/Rs;'
+    '    end'
+    'end'
+    'end'}, newline);
 end

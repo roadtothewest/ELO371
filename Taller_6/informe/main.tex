@@ -714,8 +714,8 @@ muestra su estructura.
 \draw[<->] (est.east |- 0,-4.6) -- node[above]{$v$, $x_A$} node[below]{$F_c$} (car.west |- 0,-4.6);
 \end{tikzpicture}
 \caption{Estructura del modelo Simulink. El convertidor y el rectificador son bloques
-\emph{MATLAB Function} cuyo código es el de \texttt{convertidor\_ac\_ac.m} y
-\texttt{rectificador\_m3.m}. Las señales circulan entre filas con etiquetas
+\emph{MATLAB Function} cuyo código escribe \texttt{construir\_modelo\_t6.m}. Las
+señales circulan entre filas con etiquetas
 \texttt{Goto}/\texttt{From}. El diagrama completo se exporta a
 \texttt{diagrama\_simulink.pdf}.}
 \label{fig:slx}
@@ -738,7 +738,8 @@ Los elementos nuevos respecto del Taller 3 son tres:
 \end{itemize}
 Las conmutaciones de los topes usan bloques \texttt{Switch} gobernados por $x_A$, como en
 el Taller 3. Todos los parámetros se leen de la estructura \texttt{p}
-(\texttt{parametros\_t6.m}). El script \texttt{tests.m} carga en cada ensayo las masas y la
+(función \texttt{parametros\_t6} de \texttt{tests.m}). El script \texttt{tests.m}, que es
+el único archivo necesario junto al \texttt{.slx}, carga en cada ensayo las masas y la
 envolvente con \texttt{Simulink.SimulationInput}, sin modificar el modelo.
 
 \noindent\textbf{Consideraciones numéricas.}
@@ -748,7 +749,7 @@ envolvente con \texttt{Simulink.SimulationInput}, sin modificar el modelo.
         con paso máximo de $0{,}1$ ms, para resolver los pulsos de corriente de los diodos,
         que duran $\approx 1{,}8$ ms.
   \item Como verificación, \texttt{tests.m} integra también la ecuación de estado
-        directamente, con \texttt{ecuacion\_estado\_t6.m} y RK4 de paso fijo de $0{,}1$ ms,
+        directamente, con su función \texttt{ecuacion\_estado\_t6} y RK4 de paso fijo de $0{,}1$ ms,
         y compara ambas soluciones: así se comprueba que el diagrama implementa exactamente
         las ecuaciones \eqref{eq:x1}--\eqref{eq:x10}.
 \end{itemize}

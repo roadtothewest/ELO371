@@ -1,6 +1,6 @@
 """Verificacion independiente (Python) de la ecuacion de estado del Taller 6.
 
-Mismas ecuaciones que ecuacion_estado_t6.m; integra con RK4 de paso fijo."""
+Mismas ecuaciones que la funcion ecuacion_estado_t6 de tests.m; integra con RK4 de paso fijo."""
 import numpy as np, math
 
 def params(**kw):
@@ -40,7 +40,7 @@ def profile(t, vc=2.0, Ta=8.0, Td=8.0, Tc=None, L=100.0, t0=0.0):
     v = np.where(t < 0, 0, v); a = np.where(t < 0, 0, a); j = np.where(t < 0, 0, j)
     return v, a, j, Ta + Tc + Td
 
-# ------------- ecuacion de estado (igual a ecuacion_estado_t6.m) ---------------
+# ------------- ecuacion de estado (igual a ecuacion_estado_t6 de tests.m) ---------------
 def make_rhs(p, Vef_fun):
     a, Rs, C, Ra, La, Ka = p['a'], p['Rs'], p['C'], p['Ra'], p['La'], p['Ka']
     J1, b1, K1, N, J2, b2, K2, Jeq, r = p['J1'], p['b1'], p['K1'], p['N'], p['J2'], p['b2'], p['K2'], p['Jeq'], p['r']
