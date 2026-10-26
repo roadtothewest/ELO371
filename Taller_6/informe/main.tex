@@ -34,7 +34,7 @@
 \renewcommand{\dbltopfraction}{0.9}
 \renewcommand{\textfraction}{0.07}
 \renewcommand{\floatpagefraction}{0.8}
-\renewcommand{\dblfloatpagefraction}{0.8}
+\renewcommand{\dblfloatpagefraction}{0.5}
 \setcounter{topnumber}{3}
 \setcounter{dbltopnumber}{2}
 
@@ -720,10 +720,22 @@ muestra su estructura.
 \caption{Estructura del modelo Simulink. El convertidor y el rectificador son bloques
 \emph{MATLAB Function} cuyo código escribe \texttt{construir\_modelo\_t6.m}. Las
 señales circulan entre filas con etiquetas
-\texttt{Goto}/\texttt{From}. El diagrama completo se exporta a
-\texttt{diagrama\_simulink.pdf}.}
+\texttt{Goto}/\texttt{From}. El diagrama completo generado está en la
+Fig.~\ref{fig:slxfull}.}
 \label{fig:slx}
 \end{figure}
+
+\begin{figure*}[p]
+\centering
+\includegraphics[trim=100 10 100 9, clip, width=0.92\textwidth]{figuras/diagrama_simulink.pdf}
+\caption{Diagrama Simulink \texttt{ascensor\_duple\_t6.slx}, generado por
+\texttt{construir\_modelo\_t6.m}. Arriba, la fuente $V_s(t)$, el \texttt{Transport Delay}
+de $T/4$ y los bloques \emph{MATLAB Function} del convertidor AC--AC y del rectificador. A la
+izquierda, las diez filas de las ecuaciones de estado (12.1)--(12.10), en el mismo orden del
+punto 12. Al centro, la fuerza de la carga $F_c$ con los \texttt{Switch} de los topes. A la
+derecha, el registro de señales con \texttt{To Workspace}.}
+\label{fig:slxfull}
+\end{figure*}
 
 Los elementos nuevos respecto del Taller 3 son tres:
 \begin{itemize}
@@ -754,11 +766,16 @@ envolvente con \texttt{Simulink.SimulationInput}, sin modificar el modelo.
         que duran $\approx 1{,}8$ ms.
   \item Como verificación, \texttt{tests.m} integra también la ecuación de estado
         directamente, con su función \texttt{ecuacion\_estado\_t6} y RK4 de paso fijo de $0{,}1$ ms,
-        y compara ambas soluciones: así se comprueba que el diagrama implementa exactamente
-        las ecuaciones \eqref{eq:x1}--\eqref{eq:x10}.
+        y compara ambas soluciones. Los valores que se reportan en los ensayos (voltajes,
+        corrientes y velocidades de crucero, posición de llegada y compresión de los topes)
+        coinciden en las dos: el diagrama implementa las ecuaciones
+        \eqref{eq:x1}--\eqref{eq:x10}.
 \end{itemize}
 
 \subsection*{15.- Ensayos}
+
+Las figuras de esta sección son las que exporta \texttt{tests.m} a partir del modelo
+Simulink.
 
 \subsubsection*{Diseño de la excitación}
 
@@ -803,7 +820,7 @@ completa la detención (H12). El viaje completo dura $64$ s, con $36$ s de cruce
 Ambas cabinas llevan $1500$ kg. La Fig.~\ref{fig:e1} muestra el voltaje en el motor que
 produce el viaje a velocidad constante.
 
-\begin{figure*}[!t]
+\begin{figure*}[!tp]
 \centering
 \includegraphics[width=\textwidth]{figuras/fig_ensayo1.pdf}
 \caption{Ensayo 1, cargas equilibradas ($m_A = m_B = 1500$ kg). (a) Voltaje en el motor:
@@ -851,9 +868,19 @@ Comentarios:
 \subsubsection*{Ensayo 2: cargas no equilibradas (pregunta 4)}
 
 Se usa el desequilibrio de diseño: una cabina llena ($1800$ kg) y otra vacía ($1200$ kg),
-$|\Delta m| = 600$ kg. Por H10 hay dos casos, según cuál cabina sube. Las Figs.~\ref{fig:e2a}
-y~\ref{fig:e2b} los muestran con el mismo perfil del Ensayo 1, y la Fig.~\ref{fig:reg}
+$|\Delta m| = 600$ kg. Por H10 hay dos casos, según cuál cabina sube. La Fig.~\ref{fig:e2a}
+los muestra con el mismo perfil del Ensayo 1, y la Fig.~\ref{fig:reg}
 resume la ley \eqref{eq:ley} para todo desequilibrio.
+
+\begin{figure*}[!tp]
+\centering
+\includegraphics[width=\textwidth]{figuras/fig_regimen.pdf}
+\caption{Ley de régimen permanente \eqref{eq:ley} a $v = 2$ m/s en función del
+desequilibrio $\Delta m = m_A - m_B$, positivo cuando sube la cabina más pesada. Los
+círculos son los valores medios simulados en crucero en los ensayos 1, 2a y 2b. La zona
+gris de (b) exige corriente negativa, imposible con el rectificador de diodos.}
+\label{fig:reg}
+\end{figure*}
 
 \begin{figure*}[p]
 \centering
@@ -865,17 +892,7 @@ resume la ley \eqref{eq:ley} para todo desequilibrio.
 Fig.~\ref{fig:e1}. En 2b el diseño pide corriente negativa al partir y al frenar, y el
 rectificador no puede entregarla: la cabina se adelanta en la partida y no logra frenar,
 y llega al tope a $1{,}72$ m/s.}
-\label{fig:e2a}\label{fig:e2b}
-\end{figure*}
-
-\begin{figure*}[!t]
-\centering
-\includegraphics[width=\textwidth]{figuras/fig_regimen.pdf}
-\caption{Ley de régimen permanente \eqref{eq:ley} a $v = 2$ m/s en función del
-desequilibrio $\Delta m = m_A - m_B$, positivo cuando sube la cabina más pesada. Los
-círculos son los valores medios simulados en crucero en los ensayos 1, 2a y 2b. La zona
-gris de (b) exige corriente negativa, imposible con el rectificador de diodos.}
-\label{fig:reg}
+\label{fig:e2a}
 \end{figure*}
 
 \begin{center}
@@ -956,13 +973,5 @@ la misma corriente ($J_{eq}$) y condensadores de los topes que entran a la vez (
   \item \textbf{Restricción $i_{Dk}\ge0$.} Es la que domina el comportamiento: obliga a
         alargar el frenado en el Ensayo 1 y hace inviable el Ensayo 2b fuera del crucero.
 \end{itemize}
-
-\IfFileExists{figuras/diagrama_simulink.pdf}{%
-\begin{figure*}[p]
-\centering
-\includegraphics[width=\textwidth,height=0.85\textheight,keepaspectratio]{figuras/diagrama_simulink.pdf}
-\caption{Diagrama Simulink completo generado por \texttt{construir\_modelo\_t6.m}.}
-\label{fig:slxfull}
-\end{figure*}}{}
 
 \end{document}
