@@ -175,13 +175,15 @@ modelo. Se indica para cada uno dónde se aplica:
 \centering
 \includegraphics[width=\textwidth]{figuras/circuito_equivalente.pdf}
 \caption{Diagrama simbólico eléctrico equivalente del sistema completo (pregunta 5),
-con la analogía esfuerzo--voltaje. Se dibuja en tres tramos unidos por los terminales
-$a$--$b$ y $c$--$d$. Las flechas azules son flujos (corrientes, velocidades) y las
-rojas, esfuerzos (voltajes, torques, fuerzas). Las fuentes $v_a$, $v_b$ y $v_c$ son
-controladas por el convertidor AC--AC. En la malla 5 ambas cabinas quedan en serie,
-recorridas por la misma corriente $v_A=-v_B$: la cabina $B$ aparece con su peso de
-polaridad invertida. Cada amortiguador queda puenteado por un interruptor cerrado
-($1-s_k$), que se abre durante el contacto.}
+con la analogía esfuerzo--voltaje. Es un solo circuito, dibujado en cuatro tramos unidos
+por los terminales $a$--$b$, $c$--$d$ y $e$--$f$. Las flechas azules son flujos
+(corrientes, velocidades) y las rojas, esfuerzos (voltajes, torques, fuerzas). El
+convertidor AC--AC entrega tres fuentes alternas en estrella; cada una alimenta el bus a
+través de $R_s$ y de su diodo, y el condensador $C$ fija el voltaje del motor $U$. Las dos
+cabinas quedan en serie, recorridas por la misma corriente $v_A=-v_B$: la cabina $B$
+aparece con su peso de polaridad invertida, de modo que $F_r = F_A - F_B$. Cada
+amortiguador está puenteado por un interruptor cerrado que se abre durante el contacto
+con su tope.}
 \label{fig:eq}
 \end{figure*}
 
@@ -281,12 +283,12 @@ Se usa la analogía esfuerzo--voltaje del Taller 3, extendida a la nueva entrada
 nueva carga. El resultado es el diagrama simbólico de la Fig.~\ref{fig:eq}, que responde a
 la pregunta 5.
 
-La \textbf{malla 1} es eléctrica real. El convertidor AC--AC se dibuja como un bloque que
-gobierna tres fuentes controladas $v_a$, $v_b$, $v_c$ con neutro común $n$. Cada fase
-alimenta el bus a través de su resistencia $R_s$ y de un diodo; los tres cátodos se unen en
-el polo positivo. El condensador $C$ conecta el polo positivo con el neutro, y su voltaje es
-el del motor, $U$. Es la versión circuital del esquema de la pizarra: tres fuentes alternas
-con un diodo cada una y un condensador a la salida.
+La \textbf{malla 1} es eléctrica real y sigue el esquema de la pizarra: tres fuentes
+alternas con un diodo cada una y un condensador a la salida. Las tres fuentes $v_a$, $v_b$,
+$v_c$ son la salida del convertidor AC--AC, conectadas en estrella con neutro común $n$.
+Cada fase alimenta el bus a través de su resistencia $R_s$ y de su diodo; los tres cátodos
+se unen en el polo positivo. El condensador $C$ conecta el polo positivo con el neutro, y su
+voltaje es el del motor, $U$.
 
 Las \textbf{mallas 2 a 4} son las del Taller 3: la armadura, el girador $K_a$, los ejes con
 sus inercias (inductores), roces (resistores) y torsiones (condensadores en derivación), y
@@ -302,9 +304,11 @@ de $B$ cambian de signo:
 \end{gather*}
 La inercia y el roce de $B$ siguen siendo un inductor y un resistor en serie con los de
 $A$, pero su peso es una batería de \emph{polaridad invertida}. Ambas cabinas quedan
-entonces en serie, y las dos baterías se restan: con cargas iguales se anulan. Los
-amortiguadores también quedan en serie: cuando $A$ toca su tope superior ($s_2$), $B$ toca
-el inferior, y los dos condensadores $1/K_S$ y $1/K_B$ entran a la vez.
+entonces en serie (tramos 5a y 5b de la figura, unidos por $e$--$f$), y las dos baterías
+se restan: con cargas iguales se anulan. Sobre la cabina $A$ cae el esfuerzo $F_A$; sobre
+la $B$, $-F_B$: la cabina que baja \emph{entrega} esfuerzo al lazo, que es justamente el
+efecto del contrapeso. Los amortiguadores también quedan en serie: cuando $A$ toca su tope
+superior, $B$ toca el inferior, y los dos condensadores $1/K_S$ y $1/K_B$ entran a la vez.
 
 % ================================================================ FASE 2
 \section*{Fase 2. Estableciendo las ecuaciones básicas}

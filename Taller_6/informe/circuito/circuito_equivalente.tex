@@ -7,116 +7,141 @@
 \usepackage[american, cute inductors]{circuitikz}
 \usetikzlibrary{calc}
 \ctikzset{bipoles/length=0.85cm, resistors/scale=0.8, capacitors/scale=0.8,
-          inductors/scale=0.8, sources/scale=0.85, diodes/scale=0.7,
+          inductors/scale=0.8, sources/scale=0.8, diodes/scale=0.7,
           batteries/scale=0.8, switches/scale=0.75}
 \definecolor{flujo}{RGB}{30,80,220}
 \definecolor{esfuerzo}{RGB}{200,20,20}
-% flecha de flujo horizontal (azul) sobre el cable
-\newcommand{\fl}[2]{\draw[->, flujo, thick] ($(#1)+(0,0.3)$) -- ++(0.55,0) node[midway, above, font=\small]{#2};}
-% flecha de flujo vertical hacia abajo (azul)
-\newcommand{\fld}[2]{\draw[->, flujo, thick] (#1) -- ++(0,-0.55) node[midway, right, font=\small]{#2};}
-% flecha de esfuerzo vertical (roja), con etiqueta a la izquierda
-\newcommand{\ef}[2]{\draw[->, esfuerzo, thick] (#1) -- ++(0,2.6) node[midway, left, font=\small]{#2};}
-\tikzset{caja/.style={draw, fill=gray!10, minimum width=1.2cm, minimum height=4cm, align=center},
-         nota/.style={font=\small, text=gray!40!black}}
+\definecolor{grupo}{RGB}{120,120,120}
+% flujo horizontal (azul) sobre el cable
+\newcommand{\fl}[2]{\draw[->, flujo, thick] ($(#1)+(0,0.3)$) -- ++(0.55,0)
+                    node[midway, above, font=\small]{#2};}
+% flujo vertical hacia abajo (azul)
+\newcommand{\fld}[2]{\draw[->, flujo, thick] (#1) -- ++(0,-0.55)
+                     node[midway, right, font=\small]{#2};}
+% esfuerzo vertical (rojo) entre los cables, etiqueta a la izquierda
+\newcommand{\ef}[3]{\draw[->, esfuerzo, thick] (#1) -- ++(0,#2)
+                    node[midway, left, font=\small]{#3};}
+% esfuerzo horizontal (rojo) hacia el terminal positivo
+\newcommand{\efh}[3]{\draw[->, esfuerzo, thick] (#1) -- (#2)
+                     node[pos=0.5, below, font=\small]{#3};}
+\tikzset{caja/.style={draw, fill=gray!10, align=center},
+         nota/.style={font=\small, text=grupo},
+         malla/.style={font=\small\bfseries, text=black!75},
+         grupo/.style={draw=grupo, dashed, rounded corners=3pt}}
+% amortiguador de tope: 1/K y gamma en serie, puenteados por un interruptor
+% cerrado que se abre durante el contacto.  #1 = x inicial, #2 = y del cable,
+% #3 = K, #4 = gamma, #5 = condicion de contacto, #6 = nombre del tope
+\newcommand{\tope}[6]{%
+  \draw (#1,#2) to[C, l_=$1/#3$] ({#1+1.3},#2) to[R, l_=$#4$] ({#1+2.6},#2);
+  \draw (#1,#2) -- (#1,{#2+1.0}) to[ncs, l=$#5$] ({#1+2.6},{#2+1.0}) -- ({#1+2.6},#2);
+  \node[nota] at ({#1+1.3},{#2+1.85}) {#6};}
 \begin{document}
 \begin{circuitikz}[font=\small, line width=0.6pt]
 
-% =================================================== FILA 1: electrica
-\draw (0,0.8) to[sV, l=$V_s(t)$] (0,3.2);
-\draw (0,3.2) -- (0.9,3.2) (0,0.8) -- (0.9,0.8);
-\node[caja, minimum width=1.7cm] at (1.75,2)
-     {\textbf{AC--AC}\\[2pt]$1\phi\to3\phi$\\[6pt]razón $a$\\[2pt]$v_\beta$: retardo\\$T/4$};
-% tres fases (fuentes controladas por el convertidor), Rs y diodos de catodo comun
-\foreach \x/\f in {3.8/a, 5.4/b, 7.0/c}{
-  \draw (\x,0) to[american controlled voltage source, l=$v_\f$, invert] (\x,1.4)
-        to[R, l=$R_s$] (\x,2.6) to[D*, l=$D_\f$] (\x,4);
-  \draw[->, flujo, thick] (\x+0.3,2.85) -- ++(0,0.55) node[midway, right, font=\small]{$i_{D\f}$};
+% =================================================== MALLA 1 y 2: electrica
+% fuente monofasica y convertidor
+\draw (-0.5,1.0) to[sV, l=$V_s(t)$] (-0.5,2.6);
+\draw (-0.5,2.6) -- (0.55,2.6) (-0.5,1.0) -- (0.55,1.0);
+\node[caja, minimum width=2.05cm, minimum height=3.7cm] (conv) at (1.575,1.85)
+     {\textbf{AC--AC}\\$1\phi\to3\phi$\\[5pt]razón $a$\\[5pt]{\scriptsize $v_\alpha = V_s(t)$}\\{\scriptsize $v_\beta = V_s(t-T/4)$}};
+% tres fases en estrella (salida del convertidor) con R_s y diodo de catodo comun
+\draw (3.0,0) -- (3.0,3.4);
+\foreach \y/\f in {3.4/a, 2.15/b, 0.9/c}{
+  \draw (3.0,\y) to[sV, l=$v_\f$] (4.5,\y) to[R, l_=$R_s$] (5.9,\y)
+        to[D*, l=$D_\f$] (7.3,\y) -- (7.8,\y);
+  \fl{4.95,\y}{$i_{D\f}$}
 }
-\draw (2.6,0) -- (8.8,0) (3.8,4) -- (8.8,4);
-\node at (2.85,0) [below, font=\small] {$n$};
-% bus de CC
-\draw (8.8,4) to[C, l=$C$] (8.8,0);
-\fl{7.6,4}{$i_D$}
-\fld{9.05,3.45}{$i_C$}
-\ef{8.25,0.7}{$U$}
+\draw[grupo] (2.8,0.4) rectangle (4.75,4.15);
+\node[nota, align=center] at (3.78,4.45) {salida del convertidor};
+\draw[->, dashed, grupo] (2.6,2.15) -- (2.8,2.15);
+\node at (3.0,0) [below left, font=\small] {$n$};
+% bus de CC: catodos unidos y condensador
+\draw (7.8,0.9) -- (7.8,3.4) -- (9.0,3.4);
+\draw (3.0,0) -- (13.4,0);
+\draw (9.0,3.4) to[C, l_=$C$] (9.0,0);
+\fl{8.0,3.4}{$i_D$}
+\ef{9.55,0.4}{2.6}{}
+\node[esfuerzo, right] at (9.55,1.7) {$U$};
+\node[nota] at (5.4,-0.45) {rectificador de 3 diodos};
 % armadura y girador
-\draw (8.8,4) to[R, l_=$R_a$] (10.4,4) to[L, l_=$L_a$] (11.8,4) -- (12.3,4);
-\draw (8.8,0) -- (12.3,0);
-\fl{9.3,4}{$i_a$}
-\ef{12.0,0.7}{$u_e$}
-\node[caja] at (12.9,2) {\textbf{GY}\\$K_a$};
-\draw (13.5,4) -- (15.0,4) node[ocirc]{} node[right]{$a$};
-\draw (13.5,0) -- (15.0,0) node[ocirc]{} node[right]{$b$};
-\fl{13.75,4}{$\omega_m$}
-\ef{14.55,0.7}{$M_m$}
-\node[nota] at (1.75,-0.4) {convertidor};
-\node[nota] at (5.4,-0.4) {rectificador de 3 diodos};
-\node[nota] at (12.9,-0.4) {motor (girador)};
-\node[nota] at (5.4,-0.95) {Malla 1: fuente, convertidor, rectificador y bus de CC};
-\node[nota] at (11.0,-0.95) {Malla 2: armadura};
+\draw (9.0,3.4) -- (10.0,3.4) to[R, l_=$R_a$] (11.4,3.4) to[L, l_=$L_a$] (12.8,3.4) -- (13.4,3.4);
+\fl{10.1,3.4}{$i_a$}
+\ef{13.15,0.4}{2.6}{$u_e$}
+\node[caja, minimum width=1.2cm, minimum height=3.4cm] at (14.0,1.7) {\textbf{GY}\\$K_a$};
+\draw (14.6,3.4) -- (16.2,3.4) node[ocirc]{} node[right]{$a$};
+\draw (14.6,0) -- (16.2,0) node[ocirc]{} node[right]{$b$};
+\fl{14.8,3.4}{$\omega_m$}
+\ef{15.8,0.4}{2.6}{$M_m$}
+\node[nota] at (14.0,-0.45) {motor};
+\node[malla] at (4.6,-1.05) {Malla 1: fuente, convertidor, rectificador y bus de CC};
+\node[malla] at (12.6,-1.05) {Malla 2: armadura};
 
-% =================================================== FILA 2: rotacional (Taller 3)
-\begin{scope}[yshift=-6.5cm]
-\draw (0,4) node[ocirc]{} node[left]{$a$} -- (0.3,4) to[L, l_=$J_1$] (1.8,4)
-      to[R, l_=$\beta_1$] (3.3,4) -- (4.9,4);
+% =================================================== MALLAS 3 y 4: rotacional (Taller 3)
+\begin{scope}[yshift=-5.6cm]
+\draw (0,3.4) node[ocirc]{} node[left]{$a$} -- (0.3,3.4) to[L, l_=$J_1$] (1.7,3.4)
+      to[R, l_=$\beta_1$] (3.1,3.4) -- (4.9,3.4);
 \draw (0,0) node[ocirc]{} node[left]{$b$} -- (4.9,0);
-\draw (3.8,4) to[C, l_=$K_1$] (3.8,0);
-\fl{0.4,4}{$\omega_m$}
-\fld{4.05,3.3}{$\omega_{k1}$}
-\fl{4.3,4}{$\omega_1$}
-\node[caja] at (5.5,2) {\textbf{T}\\$N$};
-\draw (6.1,4) -- (6.5,4) to[L, l_=$J_2$] (8.0,4) to[R, l_=$\beta_2$] (9.5,4) -- (11.0,4);
-\draw (6.1,0) -- (14.1,0);
-\fl{6.15,4}{$\omega_2$}
-\draw (10.2,4) to[C, l_=$K_2$] (10.2,0);
-\fld{10.55,3.3}{$\omega_{k2}$}
-\draw (11.0,4) to[L, l_=$J_p$] (12.5,4) -- (14.1,4);
-\fl{12.7,4}{$\omega_p$}
-\ef{13.6,0.7}{$M_r$}
-\node[caja] at (14.7,2) {\textbf{T}\\$r$};
-\draw (15.3,4) -- (16.5,4) node[ocirc]{} node[right]{$c$};
-\draw (15.3,0) -- (16.5,0) node[ocirc]{} node[right]{$d$};
-\fl{15.45,4}{$v_A$}
-\ef{16.15,0.7}{$F_r$}
-\node[nota] at (5.5,-0.4) {engranajes};
-\node[nota] at (14.7,-0.4) {rueda};
-\node[nota] at (2.4,-0.95) {Malla 3: eje del motor};
-\node[nota] at (10.2,-0.95) {Malla 4: eje secundario y rueda};
+\draw (3.8,3.4) to[C, l_=$K_1$] (3.8,0);
+\fl{0.35,3.4}{$\omega_m$}
+\fld{4.05,2.8}{$\omega_{k1}$}
+\node[caja, minimum width=1.2cm, minimum height=3.4cm] at (5.5,1.7) {\textbf{T}\\$N$};
+\node[nota] at (5.5,-0.45) {engranajes};
+\draw (6.1,3.4) -- (6.4,3.4) to[L, l_=$J_2$] (7.8,3.4) to[R, l_=$\beta_2$] (9.2,3.4) -- (10.9,3.4);
+\draw (6.1,0) -- (14.2,0);
+\fl{6.1,3.4}{$\omega_2$}
+\draw (9.9,3.4) to[C, l_=$K_2$] (9.9,0);
+\fld{10.15,2.8}{$\omega_{k2}$}
+\draw (10.9,3.4) to[L, l_=$J_p$] (12.3,3.4) -- (14.2,3.4);
+\fl{12.6,3.4}{$\omega_p$}
+\ef{13.85,0.4}{2.6}{$M_r$}
+\node[caja, minimum width=1.2cm, minimum height=3.4cm] at (14.8,1.7) {\textbf{T}\\$r$};
+\node[nota] at (14.8,-0.45) {rueda};
+\draw (15.4,3.4) -- (16.6,3.4) node[ocirc]{} node[right]{$c$};
+\draw (15.4,0) -- (16.6,0) node[ocirc]{} node[right]{$d$};
+\fl{15.5,3.4}{$v_A$}
+\ef{16.25,0.4}{2.6}{$F_r$}
+\node[malla] at (2.4,-1.05) {Malla 3: eje del motor};
+\node[malla] at (10.2,-1.05) {Malla 4: eje secundario y rueda};
 \end{scope}
 
-% =================================================== FILA 3: dos cabinas en serie
-\begin{scope}[yshift=-14.2cm]
-% rama superior: cabina A
-\draw (0,4) node[ocirc]{} node[left]{$c$} -- (0.3,4)
-      to[L, l=$m_A$] (1.8,4)
-      to[battery1, l=$m_A g\,\mathrm{sen}\,\theta$, invert] (3.5,4)
-      to[R, l=$\gamma$] (5.0,4) -- (5.6,4);
-\node[esfuerzo] at (2.25,3.65) {$+$}; \node[esfuerzo] at (3.05,3.65) {$-$};
-\draw[->, esfuerzo, thick] (5.0,3.25) -- (0.5,3.25) node[pos=0.5, below, font=\small]{$F_A$ (cable A)};
-\foreach \x/\sw/\kk/\gg in {5.6/2/S/S, 9.2/3/B/B}{
-  \draw (\x,4) to[C, l_=$1/K_\kk$] ({\x+1.4},4) to[R, l_=$\gamma_\gg$] ({\x+2.8},4);
-  \draw (\x,4) -- (\x,5.1) to[ncs, l=$1-s_\sw$] ({\x+2.8},5.1) -- ({\x+2.8},4);
-}
-\draw (12.0,4) -- (13.4,4) -- (13.4,0) -- (12.0,0);
-\fld{13.75,2.3}{$v_A$}
-% rama inferior: cabina B, recorrida por v_A = -v_B (peso con polaridad invertida)
-\foreach \x/\sw/\kk/\gg in {12.0/2/B/B, 8.4/3/S/S}{
-  \draw (\x,0) to[C, l=$1/K_\kk$] ({\x-1.4},0) to[R, l=$\gamma_\gg$] ({\x-2.8},0);
-  \draw (\x,0) -- (\x,-1.1) to[ncs, l_=$1-s_\sw$] ({\x-2.8},-1.1) -- ({\x-2.8},0);
-}
-\draw (5.6,0) -- (5.0,0) to[R, l_=$\gamma$] (3.5,0)
-      to[battery1, l_=$m_B g\,\mathrm{sen}\,\theta$] (1.8,0)
-      to[L, l_=$m_B$] (0.3,0) -- (0,0) node[ocirc]{} node[left]{$d$};
-\node[esfuerzo] at (2.25,-0.35) {$+$}; \node[esfuerzo] at (3.05,-0.35) {$-$};
-\draw[->, esfuerzo, thick] (5.0,0.75) -- (0.5,0.75) node[pos=0.5, above, font=\small]{$F_B$ (cable B)};
-\node[nota] at (2.65,5.15) {cabina A (sube)};
-\node[nota] at (7.0,5.85) {tope superior de A};
-\node[nota] at (10.6,5.85) {tope inferior de A};
-\node[nota] at (2.65,-1.15) {cabina B (baja)};
-\node[nota] at (10.6,-1.85) {tope inferior de B};
-\node[nota] at (7.0,-1.85) {tope superior de B};
-\node[nota, align=left] at (15.6,2.0) {Malla 5:\\dos cabinas\\en serie,\\$v_B=-v_A$};
+% =================================================== MALLA 5a: cabina A
+\begin{scope}[yshift=-11.6cm]
+\draw (0,2.4) node[ocirc]{} node[left]{$c$} -- (0.4,2.4)
+      to[L, l=$m_A$] (1.8,2.4)
+      to[battery1, l=$m_A g\,\mathrm{sen}\,\theta$, invert] (3.4,2.4)
+      to[R, l=$\gamma$] (4.8,2.4) -- (5.6,2.4);
+\node[esfuerzo] at (2.25,2.05) {$+$}; \node[esfuerzo] at (2.95,2.05) {$-$};
+\tope{5.6}{2.4}{K_S}{\gamma_S}{\text{abre si } x_A>x_S}{tope superior de A}
+\draw (8.2,2.4) -- (8.8,2.4);
+\tope{8.8}{2.4}{K_B}{\gamma_B}{\text{abre si } x_A<0}{tope inferior de A}
+\draw (11.4,2.4) -- (13.6,2.4) node[ocirc]{} node[right]{$e$};
+\draw (0,0) node[ocirc]{} node[left]{$d$} -- (13.6,0) node[ocirc]{} node[right]{$f$};
+\fl{11.75,2.4}{$v_A$}
+\efh{11.4,1.2}{0.4,1.2}{$F_A$: tensión del cable A}
+\ef{13.25,0.3}{1.8}{$-F_B$}
+\draw[grupo] (0.25,0.75) rectangle (11.65,4.65);
+\node[malla, anchor=west] at (0.4,4.35) {Cabina A (sube)};
+\node[malla] at (6.8,-0.5) {Malla 5a: cabina A, recorrida por $v_A$};
+\end{scope}
+
+% =================================================== MALLA 5b: cabina B
+\begin{scope}[yshift=-17.0cm]
+\draw (0,2.4) node[ocirc]{} node[left]{$e$} -- (0.4,2.4)
+      to[L, l=$m_B$] (1.8,2.4)
+      to[battery1, l=$m_B g\,\mathrm{sen}\,\theta$] (3.4,2.4)
+      to[R, l=$\gamma$] (4.8,2.4) -- (5.6,2.4);
+\node[esfuerzo] at (2.25,2.05) {$-$}; \node[esfuerzo] at (2.95,2.05) {$+$};
+\tope{5.6}{2.4}{K_B}{\gamma_B}{\text{abre si } x_A>x_S}{tope inferior de B}
+\draw (8.2,2.4) -- (8.8,2.4);
+\tope{8.8}{2.4}{K_S}{\gamma_S}{\text{abre si } x_A<0}{tope superior de B}
+\draw (11.4,2.4) -- (12.6,2.4) -- (12.6,0);
+\draw (0,0) node[ocirc]{} node[left]{$f$} -- (12.6,0);
+\fld{12.85,1.6}{$v_A=-v_B$}
+\efh{11.4,1.2}{0.4,1.2}{$-F_B$: la cabina B entrega esfuerzo al lazo}
+\draw[grupo] (0.25,0.75) rectangle (11.65,4.65);
+\node[malla, anchor=west] at (0.4,4.35) {Cabina B (baja)};
+\node[nota, align=left, anchor=west] at (14.6,2.2) {peso de B con\\polaridad invertida:\\$F_r = F_A - F_B$};
+\node[malla] at (6.8,-0.5) {Malla 5b: cabina B, recorrida por la misma corriente $v_A$};
 \end{scope}
 \end{circuitikz}
 \end{document}
