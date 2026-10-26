@@ -1,0 +1,17 @@
+# LaTeX
+*.aux
+*.log
+*.out
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.toc
+# Simulink
+*.slxc
+slprj/
+*.autosave
+# Python
+__pycache__/
+Taller_6/verificacion_python/resultados/
+Taller_6/informe/main.pdf
+Taller_6/informe/circuito/*.pdf
